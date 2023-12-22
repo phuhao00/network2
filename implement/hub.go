@@ -11,7 +11,7 @@ type Hub struct {
 	connCh        chan *ConnChanData
 	idleTimeLimit time.Duration
 	initConns     map[network.IConn]bool
-	activeConns   map[uint32]network.IConn
+	activeConns   map[uint64]network.IConn
 	isClose       atomic.Bool
 }
 
@@ -21,7 +21,7 @@ func NewHub(idleTimeLimit time.Duration) *Hub {
 		connCh:        make(chan *ConnChanData, 1000),
 		idleTimeLimit: idleTimeLimit,
 		initConns:     make(map[network.IConn]bool),
-		activeConns:   make(map[uint32]network.IConn),
+		activeConns:   make(map[uint64]network.IConn),
 	}
 	return h
 }
@@ -57,8 +57,8 @@ func (h *Hub) ActiveConn(conn network.IConn) {
 	}
 }
 
-func (h *Hub) Broadcast(sessionIds []uint32, data []byte) {
-	h.broadCastCh <- &BroadcastMessage{SessionIds: sessionIds, Data: data}
+func (h *Hub) Broadcast(sessionIds []uint64, data []byte) {
+	h.broadCastCh <- &BroadcastMessage{PlayerIds: sessionIds, Data: data}
 }
 
 func (h *Hub) Stop() {
@@ -84,7 +84,7 @@ func (h *Hub) Clear() {
 	for _, conn := range h.activeConns {
 		conns[conn] = true
 	}
-	for conn, _ := range conns {
+	for conn := range conns {
 		conn.Close()
 	}
 }
@@ -110,18 +110,18 @@ func (h *Hub) Run() {
 				if _, ok := h.initConns[conn]; ok {
 					delete(h.initConns, conn)
 				}
-				h.activeConns[conn.GetSession().GetId()] = conn
+				h.activeConns[conn.GetPlayerId()] = conn
 			case ChanCategoryClose:
 				delete(h.initConns, conn)
-				delete(h.activeConns, conn.GetSession().GetId())
+				delete(h.activeConns, conn.GetPlayerId())
 			}
 		case message := <-h.broadCastCh:
-			if len(message.SessionIds) == 0 {
+			if len(message.PlayerIds) == 0 {
 				for _, conn := range h.activeConns {
 					conn.Write(message.Data)
 				}
 			} else {
-				for _, id := range message.SessionIds {
+				for _, id := range message.PlayerIds {
 					conn := h.activeConns[id]
 					if conn != nil {
 						conn.Write(message.Data)

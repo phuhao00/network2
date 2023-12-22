@@ -5,8 +5,8 @@ import (
 )
 
 type IConn interface {
-	GetSession() ISession
 	GetLatestInterTime() time.Time
 	Close()
 	Write([]byte) (count int, err error)
+	GetPlayerId() uint64
 }

@@ -15,17 +15,14 @@ const MinMergedWriteBuffSize = 100 * 1024
 type TcpConnPumper struct {
 	net.Conn
 	msgCh               chan []byte
-	session             network.ISession //can remove
 	ctx                 *Context
 	hub                 network.IHub
 	LatestInterTime     time.Time //最新的一次交互时间
 	readBuffSize        int
 	mergedWriteBuffSize int
 	disableMergedWrite  bool
-}
-
-func (c *TcpConnPumper) GetSession() network.ISession {
-	return c.session
+	playerId            uint64
+	playerMsgCh         chan []byte
 }
 
 func (c *TcpConnPumper) Close() {
@@ -112,9 +109,13 @@ func (c *TcpConnPumper) handleRead() {
 	for {
 		if ok := scanner.Scan(); ok {
 			data := scanner.Bytes()
-			c.session.OnReceive(c, data)
+			c.playerMsgCh <- data
 		} else {
 			break
 		}
 	}
+}
+
+func (c *TcpConnPumper) GetPlayerId() uint64 {
+	return c.playerId
 }

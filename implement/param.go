@@ -6,8 +6,8 @@ import (
 )
 
 type BroadcastMessage struct {
-	SessionIds []uint32
-	Data       []byte
+	PlayerIds []uint64
+	Data      []byte
 }
 
 type ConnChanData struct {
