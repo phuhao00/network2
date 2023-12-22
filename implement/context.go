@@ -2,12 +2,10 @@ package implement
 
 import (
 	"bufio"
-	"network"
 	"time"
 )
 
 type Context struct {
-	SessionCreator        func(conn TcpConnPumper) network.ISession
 	Splitter              bufio.SplitFunc
 	IPChecker             func(ip string) bool
 	IdleTimeAfterOpen     time.Duration

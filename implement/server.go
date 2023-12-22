@@ -45,6 +45,6 @@ func (s *Server) Stop() {
 	s.hub.Stop()
 }
 
-func (s *Server) Broadcast(sessionIds []uint32, data []byte) {
+func (s *Server) Broadcast(sessionIds []uint64, data []byte) {
 	s.hub.Broadcast(sessionIds, data)
 }

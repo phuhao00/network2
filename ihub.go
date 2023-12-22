@@ -5,7 +5,7 @@ type IHub interface {
 	AddConn(conn IConn)
 	DelConn(conn IConn)
 	ActiveConn(conn IConn)
-	Broadcast(sessionIds []uint32, data []byte)
+	Broadcast(playerIds []uint64, data []byte)
 	Stop()
 	Clear()
 	GetActiveConnCount() int

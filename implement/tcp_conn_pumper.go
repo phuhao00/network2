@@ -87,6 +87,7 @@ func (c *TcpConnPumper) Write(data []byte) (count int, err error) {
 func (c *TcpConnPumper) handleWrite() {
 
 	buff := NewDataBuff(c.mergedWriteBuffSize, !c.disableMergedWrite)
+
 loop:
 	for {
 		select {
